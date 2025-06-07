@@ -22,7 +22,26 @@ defmodule Redlock do
 
       end
 
-  Or you can use `transaction` function
+  You can optionally assign a custom value (for example, your node name, hostname, or any unique identifier per process) to the lock.
+  This value is stored as the lock value in Redis, making it easy to identify and debug which node or process currently owns the lock.
+
+      resource = "example_key:#{user_id}"
+      lock_exp_sec = 10
+      value = Atom.to_string(Node.self())
+
+      case Redlock.lock(resource, lock_exp_sec, value) do
+
+        {:ok, mutex} ->
+          # some other code which write and read on RDBMS, KVS or other storage
+          # call unlock finally
+          Redlock.unlock(resource, mutex)
+
+        :error ->
+          Logger.error "failed to lock resource. maybe redis connection got trouble."
+          {:error, :system_error}
+      end
+
+  Or you can use the `transaction` function:
 
       def my_function() do
         # do something, and return {:ok, :my_result} or {:error, :my_error}
@@ -160,6 +179,10 @@ defmodule Redlock do
 
   def lock(resource, ttl) do
     Redlock.Executor.lock(resource, ttl)
+  end
+
+  def lock(resource, ttl, value) do
+    Redlock.Executor.lock(resource, ttl, value)
   end
 
   def unlock(resource, value) do

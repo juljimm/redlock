@@ -77,4 +77,22 @@ defmodule RedlockTest do
     # extending a lock that is not held should fail
     assert Redlock.extend("not-locked", "not-mutex", 10) == :error
   end
+
+  test "lock with custom value" do
+    key = "with_value"
+    value = "node-12345"
+
+    # Acquire lock with custom value
+    assert {:ok, ^value} = Redlock.lock(key, 10, value)
+
+    # Attempt to lock again with different value should fail
+    assert :error == Redlock.lock(key, 10, "node-other")
+
+    # Release lock with value
+    assert :ok == Redlock.unlock(key, value)
+
+    # Now should be able to acquire again
+    assert {:ok, ^value} = Redlock.lock(key, 10, value)
+    assert :ok == Redlock.unlock(key, value)
+  end
 end

@@ -10,6 +10,10 @@ defmodule Redlock.Executor do
     do_lock(resource, ttl, random_value(), 0, FastGlobal.get(:redlock_conf))
   end
 
+  def lock(resource, ttl, value) do
+    do_lock(resource, ttl, value, 0, FastGlobal.get(:redlock_conf))
+  end
+
   def unlock(resource, value) do
     config = FastGlobal.get(:redlock_conf)
 
