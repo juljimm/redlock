@@ -10,6 +10,8 @@ defmodule Redlock.Mixfile do
       version: @version,
       package: package(),
       start_permanent: Mix.env() == :prod,
+      elixirc_options: [warnings_as_errors: true],
+      aliases: aliases(),
       deps: deps(),
       docs: docs()
     ]
@@ -28,7 +30,8 @@ defmodule Redlock.Mixfile do
       {:redix, "~> 1.3"},
       {:poolboy, "~> 1.5"},
       {:fastglobal, "~> 1.0.0"},
-      {:ex_hash_ring, "~> 3.0"}
+      {:ex_hash_ring, "~> 3.0"},
+      {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
     ]
   end
 
@@ -45,6 +48,12 @@ defmodule Redlock.Mixfile do
     [
       "README.md": [title: "Readme"],
       "CHANGELOG.md": [title: "Changelog"]
+    ]
+  end
+
+  defp aliases do
+    [
+      precommit: ["compile", "credo --strict", "deps.unlock --unused", "format", "test"]
     ]
   end
 
